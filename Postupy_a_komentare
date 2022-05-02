@@ -1,0 +1,45 @@
+15 sekvencii v covid_sequences.fa
+perl -ne 'if (/^>/){$seq=~s/\r?\n(.)/$1/g;print $seq;$seq=q{};print;}else{$seq.=$_}END{$seq=~s/\r?\n(.)/$1/g;print $seq;}' covid_sequences.fa > covid_sequences_single.fa
+
+covid_sequences_single.fa
+kazda sekvencia na jednom riadku
+
+clustalo -i covid_sequences_single.fa -o covid_sequences.aln --outfmt clu
+covid_sequences.aln - zarovnane sekvencie
+
+
+Vytvorenie consensu z covid_sequences.aln
+https://emboss.bioinformatics.nl/cgi-bin/emboss/cons
+consensus na jeden riadok
+perl -ne 'if (/^>/){$seq=~s/\r?\n(.)/$1/g;print $seq;$seq=q{};print;}else{$seq.=$_}END{$seq=~s/\r?\n(.)/$1/g;print $seq;}' consensus > consensus_single
+
+
+Hladanie ORF pomocou online nástroja zo suboru consensus_single
+https://www.bioinformatics.org/sms2/orf_find.html
+Nastroj identifikoval rozne ORF v zavislosti na zadanych parametroch.
+Ani jeden ORF nevyhovoval Spike proteinu.
+Na zaklade prestudovania primarnej struktury spike proteinov v Sars-coV-2, Sars-coV a Mers-coV som presiel vlastnu consenzualnu sekvenciu ako aj viacnasobne zarovnanie
+a dosiel som k zaveru, ze pri zarovnani sa cast sekvencie pre S-protein pri MERS sekvenciach nezarovnala spolu s ostatnymi a teda vo vyslednej konsenzualnej sekvencii
+ORF pre S-protein je vysledkom len SARS-coV-2 a SARS-coV. Vdaka tejto infotmacii som bol schopny identifikovat ORF pre S-protein.
+zaciatok je na pozicii 22478 aminokyselinou M (ATG) konci na pozicii 26804 AMK T (ACA) za ktorou nasleduje stop kodon TAA.
+Cela sekvencia sa nachadza v subore spikeFromCons.
+
+
+Zozbieranie 12 primarnych sekvencii Spike proteinov do suboru spike_sequences.fa
+perl -ne 'if (/^>/){$seq=~s/\r?\n(.)/$1/g;print $seq;$seq=q{};print;}else{$seq.=$_}END{$seq=~s/\r?\n(.)/$1/g;print $seq;}' spike_sequences.fa > spike_sequences_single.fa
+
+Stiahol som si program MEGA, v ktorom som si spravil zarovnanie sekvencii a to nasledne pouzil na vytvorenie fylogenetickeho stromu ulozeneho v subore phylogenetic_tree
+PNG subory phylogenetic_tree.png a phylogenetic_tree_circle.png su graficke vystupy z MEGA, jeden ako casovy strom, druhy v kruhovom prevedeni.
+Zo získaného stromu je názorne vidno odlišnost spike proteínov u mers-cov a sars-cov/sars-cov-2, kde sars-cov a sars-cov-2 sú si fylogeneticky bližšie ako mres-cov.
+Spike proteín získaný z netopiera sa približoval najviac mers-u.
+
+Viacnásobným zarovnaním cez clustalo a pomocou online nástroja som získal konsenzuálnu sekvenciu spike_sequence_consensus.fasta
+Nástrojom: https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastp&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome
+Som namapoval získanú konsenzuálnu sekvenciu na najbližší proteín PDB. Ako najbližši proteín s najvyšším skóre vyšiel 7WCL_A, co je Chain A, Spike glycoprotein (SARS-CoV-2)
+v súbore PDB_BLAST_7cwl.png je grafické znázornenie rozdielnosti v aminokyselinách. Odlišnost jednotlivých AMK si vysvetlujem tým, že môj konsenzus pozostáva z proteínov
+pochádzajúcich zo sars/sars-cov-2 ako aj mers. Kde pri zarovnaní mohlo dôjst k nepresnostiam kvôli odlišností jednotlivých AMK v rôznych viroch.
+Toto podporuje aj výskyt úsekov xxxxxxxxx (programom na výrobu konsenzu nerozhodnutými pozíciami).
+
+
+
+
